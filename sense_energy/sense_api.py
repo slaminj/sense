@@ -9,7 +9,7 @@ API_URL = "https://api.sense.com/apiservice/api/v1/"
 WS_URL = "wss://clientrt.sense.com/monitors/%s/realtimefeed?access_token=%s"
 API_TIMEOUT = 5
 WSS_TIMEOUT = 5
-RATE_LIMIT = 60
+RATE_LIMIT = 2
 
 # for the last day, week, month, or year
 valid_scales = ["DAY", "WEEK", "MONTH", "YEAR"]

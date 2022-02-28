@@ -72,18 +72,18 @@ class Senseable(SenseableBase):
         self.set_auth_data(response.json())
 
     # Update the realtime data
-    def update_realtime(self):
+    def update_realtime(self, callback):
         # rate limit API calls
-        if (
-            self._realtime
-            and self.rate_limit
-            and self.last_realtime_call + self.rate_limit > time()
-        ):
-            return self._realtime
+        # if (
+        #     self._realtime
+        #     and self.rate_limit
+        #     and self.last_realtime_call + self.rate_limit > time()
+        # ):
+        #     return self._realtime
         url = WS_URL % (self.sense_monitor_id, self.sense_access_token)
-        next(self.get_realtime_stream())
+        next(self.get_realtime_stream(callback))
 
-    def get_realtime_stream(self):
+    def get_realtime_stream(self, callback):
         """Reads realtime data from websocket
         Continues until loop broken"""
         ws = 0
@@ -92,12 +92,15 @@ class Senseable(SenseableBase):
             ws = create_connection(
                 url, timeout=self.wss_timeout, sslopt={"cert_reqs": ssl.CERT_NONE}
             )
+            print("created web socket connection")
             while True:  # hello, features, [updates,] data
+                # print (ws.recv())
                 result = json.loads(ws.recv())
                 if result.get("type") == "realtime_update":
                     data = result["payload"]
                     self.set_realtime(data)
-                    yield data
+                    callback()
+                    # yield data
         except WebSocketTimeoutException:
             raise SenseAPITimeoutException("API websocket timed out")
         finally:

@@ -3,3 +3,4 @@
 test.py
 .idea/*
 sense_energy/secrets.py
+sense_energy.egg-info/*
