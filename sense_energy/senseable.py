@@ -1,6 +1,7 @@
 import json
 import requests
 import ssl
+import logging
 from requests.exceptions import ReadTimeout
 from websocket import create_connection
 from websocket._exceptions import WebSocketTimeoutException
@@ -88,24 +89,33 @@ class Senseable(SenseableBase):
         Continues until loop broken"""
         ws = 0
         url = WS_URL % (self.sense_monitor_id, self.sense_access_token)
+        startTime = time()
         try:
             ws = create_connection(
                 url, timeout=self.wss_timeout, sslopt={"cert_reqs": ssl.CERT_NONE}
             )
-            print("created web socket connection")
+            logging.info("created web socket connection")
             while True:  # hello, features, [updates,] data
-                # print (ws.recv())
+                #logging.debug(ws.recv())
                 result = json.loads(ws.recv())
                 if result.get("type") == "realtime_update":
                     data = result["payload"]
                     self.set_realtime(data)
-                    callback()
+                    callback(False)
                     # yield data
-        except WebSocketTimeoutException:
-            raise SenseAPITimeoutException("API websocket timed out")
-        finally:
+                if (time() >= startTime + 60):
+                    ws.ping()
+                    logging.info("PING")
+                    startTime = time()
+        except:
+            logging.debug(ws.recv())
+            #logging.exception('')
             if ws:
                 ws.close()
+                logging.warning("Close Websocket")
+            callback(True)
+            raise SenseAPITimeoutException("API websocket timed out")
+            
 
     def get_trend_data(self, scale, dt=None):
         if scale.upper() not in valid_scales:
