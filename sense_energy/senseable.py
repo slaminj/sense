@@ -108,10 +108,12 @@ class Senseable(SenseableBase):
                     logging.info("PING")
                     startTime = time()
         except:
-            logging.debug(ws.recv())
+            print("caught exception")
+            #logging.debug(ws.recv())
             #logging.exception('')
             if ws:
                 ws.close()
+                print("close websocket")
                 logging.warning("Close Websocket")
             callback(True)
             raise SenseAPITimeoutException("API websocket timed out")
