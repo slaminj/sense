@@ -82,7 +82,7 @@ class Senseable(SenseableBase):
         # ):
         #     return self._realtime
         url = WS_URL % (self.sense_monitor_id, self.sense_access_token)
-        next(self.get_realtime_stream(callback))
+        self.get_realtime_stream(callback)
 
     def get_realtime_stream(self, callback):
         """Reads realtime data from websocket
@@ -101,7 +101,7 @@ class Senseable(SenseableBase):
                 if result.get("type") == "realtime_update":
                     data = result["payload"]
                     self.set_realtime(data)
-                    callback(False)
+                    callback()
                     # yield data
                 if (time() >= startTime + 60):
                     ws.ping()
@@ -115,8 +115,8 @@ class Senseable(SenseableBase):
                 ws.close()
                 print("close websocket")
                 logging.warning("Close Websocket")
-            callback(True)
-            raise SenseAPITimeoutException("API websocket timed out")
+            #callback(True)
+            #raise SenseAPITimeoutException("API websocket timed out")
             
 
     def get_trend_data(self, scale, dt=None):
